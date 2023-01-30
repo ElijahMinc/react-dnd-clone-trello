@@ -1,7 +1,7 @@
 const data = [{
     id: 1,
     icon: "⭕️",
-    order: 0,
+    order: 2,
     status: "open",
     title: "Human Interest Form",
     content: "Fill out human interest distribution form"
@@ -15,7 +15,7 @@ const data = [{
 }, {
     id: 3,
     icon: "⭕️",
-    order: 2,
+    order: 0,
     status: "open",
     title: "Invest in investments",
     content: "Call the bank to talk about investments"

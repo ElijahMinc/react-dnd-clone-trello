@@ -15,8 +15,8 @@ export const DropWrapper = ({ onDrop, children, status}) => {
          // return [itemIndex + 1, itemIndex - 1, itemIndex].includes(statusIndex)
       },
       drop: (item, monitor) => {
-         console.log('item', item)
-         onDrop(item , monitor, status)
+         // console.log('item', item)
+         onDrop?.(item , monitor, status)
       },
       collect: monitor => ({
          isOver: monitor.isOver()
@@ -25,7 +25,9 @@ export const DropWrapper = ({ onDrop, children, status}) => {
 
 
    return (
-      <div ref={drop} className="drop-wrapper">
+      <div ref={drop} style={{
+         position: 'relative'
+      }}>
          {React.cloneElement(children, {isOver})}
       </div>
       )

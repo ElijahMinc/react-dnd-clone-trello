@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { Col } from "../components/Col";
 import { DropWrapper } from "../components/DropWrapper";
-import { Motion, spring } from 'react-motion';
 import { Item } from "../components/Item";
 import {data, statuses} from '../data'
-import FlipMove from 'react-flip-move';
-import {Draggable} from 'react-beautiful-dnd' 
+import { Motion, spring } from 'react-motion';
 
 import update from 'immutability-helper'
 
 const Homepage = props => {
     const [items, setItems] = useState(data)
-    console.log('items', items)
+
     const findCard = (id) => {
         const card = items.find(item => item.id === id)
 
@@ -21,53 +19,54 @@ const Homepage = props => {
         }
     }
 
-    const onDrop = (item, monitor, status) => {
-        const mapping = statuses.find(si => si.status === status)
-        const { card, index } = findCard(item.id);
+   const moveItem = (dragId, hoverId) => {
+        const dragIndex = items.findIndex((el) => el.id === dragId);
+        const hoverIndex = items.findIndex((el) => el.id === hoverId);
 
-        const updatedItems =  update(items, {
-            $splice: [
-              [index, 1],
-              [index, 0, {...card, status, icon: mapping.icon}]
-            ],
-          })
+        const dragCardOrder = items[dragIndex].order;
+        const hoverCardOrder = items[hoverIndex].order;
 
-        setItems(updatedItems.map((item, idx) => ({...item, order: idx})))
-    }
-
-    const moveItem = (id, atIndex) => {
-
-        const { card, index } = findCard(id);
-        const updatedItems=  update(items, {
-            $splice: [
-              [index, 1],
-              [atIndex, 0, card],
-
-            ],
-            
-          })
-
-        setItems(updatedItems.map((item, idx) => ({...item, order: idx})))
+        setItems(
+            update(items, {
+                [dragIndex]: { order: { $set: hoverCardOrder } },
+                [hoverIndex]: { order: { $set: dragCardOrder } } 
+            })
+        );
     }
 
     return (
-        <div className="row-grid">
-            {statuses.map((s) => (
-                <div key={s.status} className="col-wrapper">
-                    <h2 className="col-header">{s.status.toUpperCase()}</h2>
-                    <DropWrapper onDrop={onDrop} status={s.status}>
-                        <Col >
-                            {items
-                                .filter(i => i.status === s.status)
-                                .sort((a,b) => a.order - b.order)
-                                .map((i, idx) => (
-                                <Item key={i.id} item={i} index={idx} id={i.id} findCard={findCard} moveItem={moveItem} status={s}/>
-                            ))}
-                           
-                        </Col>
-                    </DropWrapper>
-                </div>
+        <div style={{
+            position: "relative",
+            width: "250px",
+            margin: '0 auto'
+        }}>
+        
+            {items
+                .map((i, idx) => (
+                    <Motion
+                    key={idx}
+                    style={{
+                        y: spring(i.order * 150, { stiffness: 600, damping:53 })
+                      }}
+                  >
+                    {({ y, }) =>  (
+                            <Item 
+                            item={i} 
+                            index={idx} 
+                            order={i.order}
+                            id={i.id} 
+                            style={{
+                                transform: 'translate3d(0, ' + y + 'px, 0)',
+                            }} 
+                            findCard={findCard} 
+                            moveItem={moveItem}
+                            status={i.status}
+                        />
+                        )
+                     }
+                  </Motion>
             ))}
+           
         </div>
     );
 };
